@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Editar Plataforma: {{ pla.nome_Plataforma }}</h1>
+</div>
+
+<form action="{{ url_for('editar_plataforma', cod=pla.cod_Plataforma) }}" method="POST">
+    <div class="mb-3">
+        <label for="nome_plataforma" class="form-label">Nome da Plataforma</label>
+        <input type="text" class="form-control" id="nome_plataforma" name="nome_plataforma" value="{{ pla.nome_Plataforma }}" required>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Atualizar</button>
+    <a href="{{ url_for('plataformas') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

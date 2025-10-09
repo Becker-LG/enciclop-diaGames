@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Enciclopédia de Jogos</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('cadastrar_jogo') }}" class="btn btn-sm btn-outline-primary">
+            Cadastrar Novo Jogo
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="GET" action="{{ url_for('jogos') }}">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Pesquisar por título..." name="q" value="{{ query or '' }}">
+                <button class="btn btn-outline-secondary" type="submit">Pesquisar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    {% for jogo in jogos %}
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <img src="{{ jogo.url_imagem_capa_Jogo if jogo.url_imagem_capa_Jogo else 'https://via.placeholder.com/300x400.png?text=Sem+Imagem' }}" class="card-img-top" alt="Capa do jogo {{ jogo.titulo_Jogo }}" style="height: 320px; object-fit: cover;">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ jogo.titulo_Jogo }}</h5>
+                <p class="card-text small text-muted">
+                    <strong>Dev:</strong> {{ jogo.nome_Desenvolvedor or 'N/A' }}<br>
+                    <strong>Ano:</strong> {{ jogo.ano_lancamento or 'N/A' }}
+                </p>
+                <div class="mt-auto">
+                    <p class="card-text small">
+                        <strong>Plataformas:</strong><br>
+                        <span class="badge bg-secondary me-1">{{ (jogo.plataformas or 'N/A').replace(',', ', ') }}</span>
+                    </p>
+                    <p class="card-text small">
+                        <strong>Gêneros:</strong><br>
+                        <span class="badge bg-info text-dark me-1">{{ (jogo.generos or 'N/A').replace(',', ', ') }}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{{ url_for('editar_jogo', cod=jogo.cod_Jogo) }}" class="btn btn-sm btn-warning">Editar</a> <form action="{{ url_for('excluir_jogo', cod=jogo.cod_Jogo) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o jogo \'{{ jogo.titulo_Jogo }}\'?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <p class="text-center">Nenhum jogo encontrado.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

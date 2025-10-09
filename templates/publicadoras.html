@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Gerenciar Publicadoras</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('cadastrar_publicadora') }}" class="btn btn-sm btn-outline-primary">
+            Cadastrar Nova
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="GET" action="{{ url_for('publicadoras') }}">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Pesquisar por nome..." name="q" value="{{ query or '' }}">
+                <button class="btn btn-outline-secondary" type="submit">Pesquisar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th scope="col">Código</th>
+                <th scope="col">Nome</th>
+                <th scope="col">País</th>
+                <th scope="col" class="text-center">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pub in publicadoras %}
+            <tr>
+                <td>{{ pub.cod_Publicadora }}</td>
+                <td>{{ pub.nome_Publicadora }}</td>
+                <td>{{ pub.pais_Publicadora }}</td>
+                <td class="text-center">
+                    <a href="{{ url_for('editar_publicadora', cod=pub.cod_Publicadora) }}" class="btn btn-sm btn-warning">Editar</a>
+                    
+                    <form action="{{ url_for('excluir_publicadora', cod=pub.cod_Publicadora) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir esta publicadora? Os jogos associados a ela não serão apagados, mas perderão este vínculo.');">
+                        <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="text-center">Nenhuma publicadora encontrada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Cadastrar Novo Gênero</h1>
+</div>
+
+<form action="{{ url_for('cadastrar_genero') }}" method="POST">
+    <div class="mb-3">
+        <label for="nome_genero" class="form-label">Nome do Gênero</label>
+        <input type="text" class="form-control" id="nome_genero" name="nome_genero" required>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="{{ url_for('generos') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}
