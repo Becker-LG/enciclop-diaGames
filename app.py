@@ -169,7 +169,7 @@ def cadastrar_desenvolvedor():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
 
-        # Verifica se a publicadora já existe
+        # Verifica se a desenvolvedora já existe
         cursor.execute("SELECT cod_Desenvolvedor FROM Desenvolvedor WHERE nome_Desenvolvedor = %s", (nome,))
         if cursor.fetchone():
             flash("Já existe um desenvolvedor com este nome.", "erro")
@@ -177,7 +177,7 @@ def cadastrar_desenvolvedor():
             conn.close()
             return redirect(url_for('cadastrar_desenvolvedor'))
 
-        # Insere a nova publicadora
+        # Insere a nova desenvolvedora
         cursor.execute("INSERT INTO Desenvolvedor (nome_Desenvolvedor, pais_Desenvolvedor) VALUES (%s, %s)", (nome, pais))
         conn.commit()
         
@@ -191,7 +191,7 @@ def cadastrar_desenvolvedor():
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Rota para Editar uma Publicadora
+# Rota para Editar uma Desenvolvedora
 @app.route('/desenvolvedores/editar/<int:cod>', methods=['GET', 'POST'])
 def editar_desenvolvedor(cod):
     if 'usuario_id' not in session:
@@ -227,7 +227,7 @@ def editar_desenvolvedor(cod):
         flash("Desenvolvedor atualizado com sucesso!", "sucesso")
         return redirect(url_for('desenvolvedores'))
 
-    # GET: Busca a publicadora atual para preencher o formulário
+    # GET: Busca a Desenvolvedora atual para preencher o formulário
     cursor.execute("SELECT * FROM Desenvolvedor WHERE cod_Desenvolvedor = %s", (cod,))
     des = cursor.fetchone()
     
@@ -242,7 +242,7 @@ def editar_desenvolvedor(cod):
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Rota para Excluir uma Plataforma
+# Rota para Excluir uma Desenvolvedora
 @app.route('/desenvolvedores/excluir/<int:cod>', methods=['POST'])
 def excluir_desenvolvedor(cod):
     if 'usuario_id' not in session:
