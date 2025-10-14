@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Editar Desenvolvedor: {{ pub.nome_Desenvolvedor }}</h1>
+    <h1 class="h2">Editar Desenvolvedor: {{ des.nome_Desenvolvedor }}</h1>
 </div>
 
 <form action="{{ url_for('editar_desenvolvedor', cod=des.cod_Desenvolvedor) }}" method="POST">
