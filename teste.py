@@ -1,12 +1,19 @@
 import mysql.connector
 
-try:
-    conn = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",  # sua senha, se tiver
-        database="eg"
-    )
-    print("Conexão bem-sucedida!")
-except mysql.connector.Error as err:
-    print("Erro:", err)
+
+db_config = {
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "eg"
+}
+
+nome = 'BioWare'
+
+conn = mysql.connector.connect(**db_config)
+cursor = conn.cursor()
+
+cursor.execute("SELECT cod_Desenvolvedor FROM Desenvolvedor WHERE nome_Desenvolvedor = %s", (nome,))
+registro = cursor.fetchone()
+
+print(registro[0])

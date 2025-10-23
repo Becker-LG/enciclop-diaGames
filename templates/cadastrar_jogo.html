@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Cadastrar Novo Jogo</h1>
+</div>
+
+<form action="{{ url_for('cadastrar_jogo') }}" method="POST">
+    <div class="mb-3">
+        <label for="titulo_jogo" class="form-label">Nome do Jogo</label>
+        <input type="text" class="form-control" id="titulo_jogo" name="titulo_jogo" required>
+    </div>
+    <div class="mb-3">
+        <label for="descricao_jogo" class="form-label">Descrição do Jogo</label>
+        <input type="text" class="form-control" id="descricao_jogo" name="descricao_jogo">
+    </div>
+    <div class="mb-3">
+        <label for="data_lancamento_jogo" class="form-label">Data de Lançamento do Jogo</label>
+        <input type="text" class="form-control" id="data_lancamento_jogo" name="data_lancamento_jogo">
+    </div>
+    <div class="mb-3">
+        <label for="url_imagem_capa_jogo" class="form-label">URL Imagem do Jogo</label>
+        <input type="text" class="form-control" id="url_imagem_capa_jogo" name="url_imagem_capa_jogo">
+    </div>
+    <div class="mb-3">
+        <label for="nome_desenvolvedor" class="form-label">Nome do Desenvolvedor</label>
+        <input type="text" class="form-control" id="nome_desenvolvedor" name="nome_desenvolvedor">
+    </div>
+    <div class="mb-3">
+        <label for="nome_publicadora" class="form-label">Nome do Publicador</label>
+        <input type="text" class="form-control" id="nome_publicadora" name="nome_publicadora">
+    </div>
+    <div class="mb-3">
+        <label for="nome_genero" class="form-label">Gênero do Jogo</label>
+        <input type="text" class="form-control" id="nome_genero" name="nome_genero">
+    </div>
+    <div class="mb-3">
+        <label for="nome_plataforma" class="form-label">Plataforma do Jogo</label>
+        <input type="text" class="form-control" id="nome_plataforma" name="nome_plataforma">
+    </div>
+    
+    
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="{{ url_for('jogos') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

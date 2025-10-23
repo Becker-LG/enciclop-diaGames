@@ -749,6 +749,216 @@ def jogos():
 
     return render_template('jogos.html', jogos=lista_jogos, query=query)
 
+# Rota para Cadastrar um Novo Jogo
+@app.route('/jogos/cadastrar', methods=['GET', 'POST'])
+def cadastrar_jogo():
+    if 'usuario_id' not in session:
+        flash("Você precisa fazer login para acessar esta página.", "erro")
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        nome = request.form['titulo_jogo'].strip()
+        desc = request.form['descricao_jogo'].strip()
+        data = request.form['data_lancamento_jogo'].strip()
+        url = request.form['url_imagem_capa_jogo'].strip()
+        nome_des = request.form['nome_desenvolvedor'].strip()
+        nome_pub = request.form['nome_publicadora'].strip()
+        nome_gen = request.form['nome_genero'].strip()
+        nome_pla = request.form['nome_plataforma'].strip()
+
+        if not nome:
+            flash("O nome do jogo é obrigatório.", "erro")
+            return redirect(url_for('cadastrar_jogo'))
+
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # Verifica se o jogo já existe
+        cursor.execute("SELECT cod_Jogo FROM Jogo WHERE titulo_Jogo = %s", (nome,))
+        if cursor.fetchone():
+            flash("Já existe um jogo com este nome.", "erro")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('cadastrar_jogo'))
+        
+        # Verifica se desenvolvedora, publicadora, gênero e plataforma existem
+        # DESENVOLVEDOR
+        cursor.execute("SELECT cod_Desenvolvedor FROM Desenvolvedor WHERE nome_Desenvolvedor = %s", (nome_des,))
+        cod_des = cursor.fetchone()[0]
+        if cod_des is None:
+            flash("Não existe desenvolvedora com este nome.", "erro")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('cadastrar_jogo'))
+        
+        # PUBLICADORA
+        cursor.execute("SELECT cod_Publicadora FROM Publicadora WHERE nome_Publicadora = %s", (nome_pub,))
+        cod_pub = cursor.fetchone()[0]
+        if cod_pub is None:
+            flash("Não existe publicadora com este nome.", "erro")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('cadastrar_jogo'))
+        
+        # GÊNERO
+        cursor.execute("SELECT cod_Genero FROM Genero WHERE nome_Genero = %s", (nome_gen,))
+        cod_gen = cursor.fetchone()[0]
+        if cod_gen is None:
+            flash("Não existe gênero com este nome.", "erro")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('cadastrar_jogo'))
+
+        # PLATAFORMA
+        cursor.execute("SELECT cod_Plataforma FROM Plataforma WHERE nome_Plataforma = %s", (nome_pla,))
+        cod_pla = cursor.fetchone()[0]
+        if cod_pla is None:
+            flash("Não existe plataforma com este nome.", "erro")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('cadastrar_jogo'))
+
+        # Insere o novo jogo
+        cursor.execute("INSERT INTO Jogo (titulo_Jogo, descricao_Jogo, data_lancamento_Jogo, url_imagem_capa_Jogo, cod_desenvolvedor_fk, cod_publicadora_fk) VALUES (%s, %s, %s, %s, %s, %s)", (nome, desc, data, url, cod_des, cod_pub))
+        conn.commit()
+        
+        cursor.execute("SELECT cod_Jogo FROM Jogo WHERE titulo_Jogo = %s", (nome,))
+        cod = int(cursor.fetchone()[0])
+
+        cursor.execute("INSERT INTO jogo_genero (cod_jogo_fk, cod_genero_fk) VALUES (%s, %s)", (cod, cod_gen))
+        conn.commit()
+
+        cursor.execute("INSERT INTO jogo_plataforma (cod_jogo_fk, cod_plataforma_fk) VALUES (%s, %s)", (cod, cod_pla))
+        conn.commit()
+        
+        cursor.close()
+        conn.close()
+
+        flash("Jogo cadastrado com sucesso!", "sucesso")
+        return redirect(url_for('jogos'))
+
+    return render_template('cadastrar_jogo.html')
+
+# Rota para Editar um Jogo
+@app.route('/jogos/editar/<int:cod>', methods=['GET', 'POST'])
+def editar_jogo(cod):
+    if 'usuario_id' not in session:
+        flash("Você precisa fazer login para acessar esta página.", "erro")
+        return redirect(url_for('login'))
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    if request.method == 'POST':
+        nome = request.form['titulo_jogo'].strip()
+        desc = request.form['descricao_jogo'].strip()
+        data = request.form['data_lancamento_jogo'].strip()
+        url = request.form['url_imagem_capa_jogo'].strip()
+        nome_des = request.form['nome_desenvolvedor'].strip()
+        nome_pub = request.form['nome_publicadora'].strip()
+        nome_gen = request.form['nome_genero'].strip()
+        nome_pla = request.form['nome_plataforma'].strip()
+
+        if not nome:
+            flash("O nome do jogo é obrigatório.", "erro")
+            return redirect(url_for('editar_jogo', cod=cod))
+
+        # Verifica se o novo nome já existe em outro registro
+        cursor.execute("SELECT cod_Jogo FROM Jogo WHERE titulo_Jogo = %s AND cod_Jogo != %s", (nome, cod))
+        if cursor.fetchone():
+            flash("Já existe outro jogo com este nome.", "erro")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('editar_jogo', cod=cod))
+        
+        # Verifica se desenvolvedora e publicadora existem
+        # DESENVOLVEDOR
+        cursor.execute("SELECT cod_Desenvolvedor FROM Desenvolvedor WHERE nome_Desenvolvedor = %s", (nome_des,))
+        cod_des = cursor.fetchone()[0]
+        if cod_des is None:
+            flash("Não existe desenvolvedora com este nome.", "erro")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('cadastrar_jogo'))
+        
+        # PUBLICADORA
+        cursor.execute("SELECT cod_Publicadora FROM Publicadora WHERE nome_Publicadora = %s", (nome_pub,))
+        cod_pub = cursor.fetchone()[0]
+        if cod_pub is None:
+            flash("Não existe publicadora com este nome.", "erro")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('cadastrar_jogo'))
+        
+        # GÊNERO
+        cursor.execute("SELECT cod_Genero FROM Genero WHERE nome_Genero = %s", (nome_gen,))
+        cod_gen = cursor.fetchone()[0]
+        if cod_gen is None:
+            flash("Não existe gênero com este nome.", "erro")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('cadastrar_jogo'))
+
+        # PLATAFORMA
+        cursor.execute("SELECT cod_Plataforma FROM Plataforma WHERE nome_Plataforma = %s", (nome_pla,))
+        cod_pla = cursor.fetchone()[0]
+        if cod_pla is None:
+            flash("Não existe plataforma com este nome.", "erro")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('cadastrar_jogo'))
+        
+        # Atualiza o registro
+        cursor.execute("UPDATE Jogo SET titulo_Jogo = %s, descricao_Jogo = %s, data_lancamento_Jogo = %s, url_imagem_capa_Jogo = %s, cod_desenvolvedor_fk = %s, cod_publicadora_fk = %s WHERE cod_Jogo = %s", (nome, desc, data, url, cod_des, cod_pub, cod))
+        conn.commit()
+        
+        cursor.execute("UPDATE jogo_genero SET cod_jogo_fk = %s, cod_genero_fk = %s WHERE cod_Jogo = %s", (cod, cod_gen, cod))
+        conn.commit()
+
+        cursor.execute("UPDATE jogo_plataforma SET cod_jogo_fk = %s, cod_plataforma_fk = %s WHERE cod_Jogo = %s", (cod, cod_pla, cod))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        flash("Jogo atualizada com sucesso!", "sucesso")
+        return redirect(url_for('jogos'))
+
+    # GET: Busca o jogo atual para preencher o formulário
+    cursor.execute("SELECT * FROM Jogo WHERE cod_Jogo = %s", (cod,))
+    jog = cursor.fetchone()
+    
+    cursor.close()
+    conn.close()
+
+    if not jog:
+        flash("Jogo não encontrado.", "erro")
+        return redirect(url_for('jogos'))
+
+    return render_template('editar_jogo.html', jog=jog)
+
+# Rota para Excluir um Jogo
+@app.route('/jogos/excluir/<int:cod>', methods=['POST'])
+def excluir_jogo(cod):
+    if 'usuario_id' not in session:
+        flash("Você precisa fazer login para acessar esta página.", "erro")
+        return redirect(url_for('login'))
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    
+    # Exclui o Jogo
+    # Nota: A regra ON DELETE SET NULL na tabela Jogo fará com que os jogos
+    # desta publicadora tenham seu `cod_publicadora_fk` definido como NULL.
+    cursor.execute("DELETE FROM Jogo WHERE cod_Jogo = %s", (cod,))
+    conn.commit()
+    
+    cursor.close()
+    conn.close()
+
+    flash("Jogo excluída com sucesso!", "sucesso")
+    return redirect(url_for('jogos'))
+
 
 # Executa o app
 if __name__ == '__main__':

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Editar Jogo: {{ jog.titulo_Jogo }}</h1>
+</div>
+
+<form action="{{ url_for('editar_jogo', cod=jog.cod_Jogo) }}" method="POST">
+    <div class="mb-3">
+        <label for="titulo_jogo" class="form-label">Título do Jogo</label>
+        <input type="text" class="form-control" id="titulo_jogo" name="titulo_jogo" value="{{ jog.titulo_Jogo }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="descricao_jogo" class="form-label">Descrição do Jogo</label>
+        <input type="text" class="form-control" id="descricao_jogo" name="descricao_jogo" value="{{ jog.descricao_Jogo or '' }}">
+    </div>
+    <div class="mb-3">
+        <label for="data_lancamento_jogo" class="form-label">Data de Lançamento do Jogo</label>
+        <input type="text" class="form-control" id="data_lancamento_jogo" name="data_lancamento_jogo" value="{{ jog.data_lancamento_Jogo or '' }}">
+    </div>
+    <div class="mb-3">
+        <label for="url_imagem_capa_jogo" class="form-label">Descrição do Jogo</label>
+        <input type="text" class="form-control" id="url_imagem_capa_jogo" name="url_imagem_capa_jogo" value="{{ jog.url_imagem_capa_Jogo or '' }}">
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Atualizar</button>
+    <a href="{{ url_for('jogos') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}
