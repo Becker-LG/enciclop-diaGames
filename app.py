@@ -749,6 +749,7 @@ def jogos():
 
     return render_template('jogos.html', jogos=lista_jogos, query=query)
 
+'''
 # Rota para Cadastrar um Novo Jogo
 @app.route('/jogos/cadastrar', methods=['GET', 'POST'])
 def cadastrar_jogo():
@@ -838,7 +839,46 @@ def cadastrar_jogo():
         return redirect(url_for('jogos'))
 
     return render_template('cadastrar_jogo.html')
+'''
 
+# Rota para Cadastrar um Novo Jogo
+@app.route('/jogos/cadastrar', methods=['GET', 'POST'])
+def cadastrar_jogo():
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    if request.method == 'POST':
+        titulo = request.form['titulo_jogo'].strip()
+        descricao = request.form['descricao_jogo'].strip()
+        data_lancamento = request.form['data_lancamento_jogo']
+        url_imagem = request.form['url_imagem_capa_jogo'].strip()
+        cod_dev = request.form['cod_desenvolvedor']
+        cod_pub = request.form['cod_publicadora']
+        plataformas_selecionadas = request.form.getlist('plataformas')
+        generos_selecionados = request.form.getlist('generos')
+        cursor.execute("INSERT INTO Jogo (titulo_Jogo, descricao_Jogo, data_lancamento_Jogo, url_imagem_capa_Jogo, cod_desenvolvedor_fk, cod_publicadora_fk) VALUES (%s, %s, %s, %s, %s, %s)", (titulo, descricao, data_lancamento, url_imagem, cod_dev, cod_pub))
+        cod_novo_jogo = cursor.lastrowid
+        for cod_plat in plataformas_selecionadas:
+            cursor.execute("INSERT INTO Jogo_Plataforma (cod_jogo_fk, cod_plataforma_fk) VALUES (%s, %s)", (cod_novo_jogo, cod_plat))
+        for cod_gen in generos_selecionados:
+            cursor.execute("INSERT INTO Jogo_Genero (cod_jogo_fk, cod_genero_fk) VALUES (%s, %s)", (cod_novo_jogo, cod_gen))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash("Jogo cadastrado com sucesso!", "sucesso")
+        return redirect(url_for('jogos'))
+    cursor.execute("SELECT * FROM Desenvolvedor ORDER BY nome_Desenvolvedor")
+    desenvolvedores = cursor.fetchall()
+    cursor.execute("SELECT * FROM Publicadora ORDER BY nome_Publicadora")
+    publicadoras = cursor.fetchall()
+    cursor.execute("SELECT * FROM Plataforma ORDER BY nome_Plataforma")
+    plataformas = cursor.fetchall()
+    cursor.execute("SELECT * FROM Genero ORDER BY nome_Genero")
+    generos = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('cadastrar_jogo.html', desenvolvedores=desenvolvedores, publicadoras=publicadoras, plataformas=plataformas, generos=generos)
+
+'''    
 # Rota para Editar um Jogo
 @app.route('/jogos/editar/<int:cod>', methods=['GET', 'POST'])
 def editar_jogo(cod):
@@ -936,6 +976,55 @@ def editar_jogo(cod):
         return redirect(url_for('jogos'))
 
     return render_template('editar_jogo.html', jog=jog)
+'''
+
+@app.route('/jogos/editar/<int:cod>', methods=['GET', 'POST'])
+def editar_jogo(cod):
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    if request.method == 'POST':
+        titulo = request.form['titulo_jogo'].strip()
+        descricao = request.form['descricao_jogo'].strip()
+        data_lancamento = request.form['data_lancamento_jogo']
+        url_imagem = request.form['url_imagem_capa_jogo'].strip()
+        cod_dev = request.form['cod_desenvolvedor']
+        cod_pub = request.form['cod_publicadora']
+        plataformas_selecionadas = request.form.getlist('plataformas')
+        generos_selecionados = request.form.getlist('generos')
+        cursor.execute("UPDATE Jogo SET titulo_Jogo = %s, descricao_Jogo = %s, data_lancamento_Jogo = %s, url_imagem_capa_Jogo = %s, cod_desenvolvedor_fk = %s, cod_publicadora_fk = %s WHERE cod_Jogo = %s", (titulo, descricao, data_lancamento, url_imagem, cod_dev, cod_pub, cod))
+        cursor.execute("DELETE FROM Jogo_Plataforma WHERE cod_jogo_fk = %s", (cod,))
+        for cod_plat in plataformas_selecionadas:
+            cursor.execute("INSERT INTO Jogo_Plataforma (cod_jogo_fk, cod_plataforma_fk) VALUES (%s, %s)", (cod, cod_plat))
+        cursor.execute("DELETE FROM Jogo_Genero WHERE cod_jogo_fk = %s", (cod,))
+        for cod_gen in generos_selecionados:
+            cursor.execute("INSERT INTO Jogo_Genero (cod_jogo_fk, cod_genero_fk) VALUES (%s, %s)", (cod, cod_gen))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash("Jogo atualizado com sucesso!", "sucesso")
+        return redirect(url_for('jogos'))
+    cursor.execute("SELECT *, DATE_FORMAT(data_lancamento_Jogo, '%%Y-%%m-%%d') as data_formatada FROM Jogo WHERE cod_Jogo = %s", (cod,))
+    jogo = cursor.fetchone()
+    if not jogo:
+        flash("Jogo não encontrado.", "erro")
+        cursor.close()
+        conn.close()
+        return redirect(url_for('jogos'))
+    cursor.execute("SELECT * FROM Desenvolvedor ORDER BY nome_Desenvolvedor")
+    desenvolvedores = cursor.fetchall()
+    cursor.execute("SELECT * FROM Publicadora ORDER BY nome_Publicadora")
+    publicadoras = cursor.fetchall()
+    cursor.execute("SELECT * FROM Plataforma ORDER BY nome_Plataforma")
+    plataformas = cursor.fetchall()
+    cursor.execute("SELECT * FROM Genero ORDER BY nome_Genero")
+    generos = cursor.fetchall()
+    cursor.execute("SELECT cod_plataforma_fk FROM Jogo_Plataforma WHERE cod_jogo_fk = %s", (cod,))
+    plataformas_atuais = [item['cod_plataforma_fk'] for item in cursor.fetchall()]
+    cursor.execute("SELECT cod_genero_fk FROM Jogo_Genero WHERE cod_jogo_fk = %s", (cod,))
+    generos_atuais = [item['cod_genero_fk'] for item in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+    return render_template('editar_jogo.html', jogo=jogo, desenvolvedores=desenvolvedores, publicadoras=publicadoras, plataformas=plataformas, generos=generos, plataformas_atuais=plataformas_atuais, generos_atuais=generos_atuais)
 
 # Rota para Excluir um Jogo
 @app.route('/jogos/excluir/<int:cod>', methods=['POST'])
