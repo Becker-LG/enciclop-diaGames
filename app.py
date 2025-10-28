@@ -1,3 +1,9 @@
+'''
+FEITO POR:  Lucas Gabriel Becker
+            Yasmin Sarah Martins
+'''
+
+
 # Seção 1: Importações
 # ---------------------
 from flask import Flask, render_template, request, redirect, url_for, session, flash
